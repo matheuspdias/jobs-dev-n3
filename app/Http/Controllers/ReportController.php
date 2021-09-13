@@ -20,28 +20,26 @@ class ReportController extends Controller
      */
     public function listReports(Request $request)
     {
-        $apiUrl = 'https://spaceflightnewsapi.net/api/v2';
+        $apiUrl = 'https://www.spaceflightnewsapi.net/api/v2/';
 
         $guzzle = new Client([
             'base_uri' => $apiUrl
         ]);
-        $rawResult = $guzzle->get('reports')->getBody();
+        $rawResult = json_decode($guzzle->get('reports')->getBody(), true);
 
         $filter = $request->get('filter');
 
         $result = [];
 
-        for ($x = 0; $x <= sizeof($rawResult); $x++) {
+        for ($x = 0; $x < sizeof($rawResult); $x++) {
             Report::create([
                 'external_id' => $rawResult[$x]['id'],
                 'title' => $rawResult[$x]['title'],
                 'url' => $rawResult[$x]['url'],
+                'image_url' => $rawResult[$x]['imageUrl'],
+                'news_site' => $rawResult[$x]['newsSite'],
                 'summary' => $rawResult[$x]['summary']
             ]);
-
-            if (strpos($rawResult[$x], $filter) == false) {
-                continue;
-            }
 
             $result[] = $rawResult[$x];
         }
@@ -58,7 +56,7 @@ class ReportController extends Controller
         $report = Report::create([
             'external_id' => $request->post('external_id'),
             'title' => $request->post('title'),
-            'url' => $request->post('url'),
+            'url' => $request->post('url'),            
             'summary' => $request->post('summary')
         ]);
 
