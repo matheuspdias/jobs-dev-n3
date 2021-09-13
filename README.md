@@ -12,12 +12,11 @@ Lembrando que cada comando acima deve ser executado na sua vez.
 Após feito isso use o SGBD de sua preferencia para importar a base de dados, dados para conexão:
 **HOST:** _0.0.0.0_
 **PORT:** _3306_
-**DATABASE:** _n3_
+**DATABASE:** _jobsdev_
 **USERNAME:** _root_
 **PASSWORD:** _secret_
 
-No .env.example são os exemplos de conexão com os serviços do docker
 
-Para testar se a api está acessível entre no endereço:
+API Online no endereço:
 [http://0.0.0.0](http://0.0.0.0)
 

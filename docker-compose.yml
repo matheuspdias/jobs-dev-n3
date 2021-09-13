@@ -4,9 +4,9 @@ networks:
   default:
 
 services:
-  n3_webserver: 
+  jobsdev_webserver: 
     image: nginx:stable-alpine
-    container_name: n3_webserver
+    container_name: jobsdev_webserver
     ports: 
       - "7000:80"
     volumes:
@@ -15,11 +15,11 @@ services:
     networks:
       - default
 
-  n3_app:
+  jobsdev_app:
     build: 
       context: .
       dockerfile: ./docker/Dockerfile
-    container_name: n3_app
+    container_name: jobsdev_app
     volumes: 
       - ./:/var/www/html
     ports: 
@@ -27,15 +27,15 @@ services:
     networks: 
       - default  
 
-  n3_db:
+  jobsdev_db:
     image: mysql:5.7.29
-    container_name: n3_db
+    container_name: jobsdev_db
     restart: unless-stopped
     tty: true
     ports: 
       - "3306:3306"
     environment: 
-      MYSQL_DATABASE: n3
+      MYSQL_DATABASE: jobsdev
       MYSQL_USER: root
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: secret
