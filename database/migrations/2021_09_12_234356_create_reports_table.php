@@ -15,7 +15,7 @@ class CreateReportsTable extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
-            $table->string('external_id');
+            $table->string('external_id')->nullable();
             $table->string('title');
             $table->string('url');
             $table->string('image_url')->nullable();

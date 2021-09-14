@@ -8,8 +8,14 @@ Route::prefix('v1')->group(function () {
     Route::get('reports', [ReportController::class, 'listReports'])->name('reports.list');
 
     // Criar Reports
-    Route::put('reports', [ReportController::class, 'createReport'])->name('reports.create');
+    Route::post('reports', [ReportController::class, 'createReport'])->name('reports.create');
+        
+    // Visualizar Report
+    Route::get('reports/{id}', [ReportController::class, 'showReport'])->name('reports.show');
+
+    // Atualizar Reports
+    Route::put('reports/{id}', [ReportController::class, 'updateReport'])->name('reports.update');
 
     // Deletar Reports
-    Route::post('reports/{id}', [ReportController::class, 'deleteReport'])->name('reports.delete');
+    Route::delete('reports/{id}', [ReportController::class, 'deleteReport'])->name('reports.delete');    
 });
