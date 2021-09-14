@@ -96,65 +96,35 @@ class ReportController extends Controller
 
     public function updateReport($id, Request $request)
     {
-        $res = [];
         $report = Report::find($id);
-        
-        if($report) {
-            $validator = Validator::make($request->all(), [
-                'external_id' => 'required',
-                'title' => 'required',
-                'url' => 'required',
-                'summary' => 'required',
-            ]);
-    
-            if (!$validator->fails()) {
-                $data = $request->only([
-                    'external_id',
-                    'title',
-                    'url',
-                    'summary',
-                    'image_url',
-                    'news_site'
-                ]);
-                
-                $report->external_id = $data['external_id'];
-                $report->title = $data['title'];
-                $report->url = $data['url'];
-                $report->summary = $data['summary'];
-                $report->image_url = $data['image_url'];
-                $report->news_site = $data['news_site'];
-                $report->save();
-                $statusCode = 201;
-            } else {
-                $report['error'] = $validator->errors()->first();
-                $statusCode = 400;
-            }
-    
-            return (new ReportResource($report))
-                ->response()
-                ->setStatusCode($statusCode);
-        } else {
-            $res['error'] = 'Este report não existe!';
-            $statusCode = 400;
-        }
-        return response()->json($res, $statusCode);
-    }
 
-    public function showReport($reportId)
-    {
-        $result = [];
-        $report = Report::find($reportId);
-        
-        if($report) {
-            $result = $report;
-            $statusCode = 200;
-        } else {
-            $result['error'] = 'Este report não existe!';
-            $statusCode = 400;
+        if ($request->external_id) {
+            $report->external_id = $request->external_id;
         }
-        return (new ReportResource($result))
-                ->response()
-                ->setStatusCode($statusCode);
+
+        if ($request->title) {
+            $report->title = $request->title;
+        }
+
+        if ($request->url) {
+            $report->url = $request->url;
+        }
+
+        if ($request->image_url) {
+            $report->image_url = $request->image_url;
+        }
+
+        if ($request->summary) {
+            $report->summary = $request->summary;
+        }
+
+        if ($request->news_site) {
+            $report->news_site = $request->news_site;
+        }
+
+        $report->save();
+
+        return $report;
     }
 
     public function deleteReport($reportId)
