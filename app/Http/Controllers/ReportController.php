@@ -83,48 +83,74 @@ class ReportController extends Controller
             ]);
             
             $report = Report::create($data);
-            $statusCode = 201;
+            $status = 201;
         } else {
             $report['error'] = $validator->errors()->first();
-            $statusCode = 400;
+            $status = 400;
         }
 
         return (new ReportResource($report))
             ->response()
-            ->setStatusCode($statusCode);
+            ->setStatusCode($status);
     }
 
     public function updateReport($id, Request $request)
     {
+        $array = [];
         $report = Report::find($id);
 
-        if ($request->external_id) {
-            $report->external_id = $request->external_id;
+        if ($report) {
+            if ($request->external_id) {
+                $report->external_id = $request->external_id;
+            }
+    
+            if ($request->title) {
+                $report->title = $request->title;
+            }
+    
+            if ($request->url) {
+                $report->url = $request->url;
+            }
+    
+            if ($request->image_url) {
+                $report->image_url = $request->image_url;
+            }
+    
+            if ($request->summary) {
+                $report->summary = $request->summary;
+            }
+    
+            if ($request->news_site) {
+                $report->news_site = $request->news_site;
+            }    
+            $report->save();
+            $array = $report;
+            $status = 200;
+        } else {
+            $array['error'] = 'Este report não existe';
+            $status = 400;
         }
 
-        if ($request->title) {
-            $report->title = $request->title;
+        return (new ReportResource($array))
+                ->response()
+                ->setStatusCode($status);
+    }
+
+    public function showReport($id, Request $request)
+    {
+        $array = [];
+        $report = Report::find($id);
+
+        if ($report) {
+            $array = $report;
+            $status = 200;
+        } else {
+            $array['error'] = 'Este report não existe';
+            $status = 400;
         }
-
-        if ($request->url) {
-            $report->url = $request->url;
-        }
-
-        if ($request->image_url) {
-            $report->image_url = $request->image_url;
-        }
-
-        if ($request->summary) {
-            $report->summary = $request->summary;
-        }
-
-        if ($request->news_site) {
-            $report->news_site = $request->news_site;
-        }
-
-        $report->save();
-
-        return $report;
+        return (new ReportResource($array))
+                ->response()
+                ->setStatusCode($status);
     }
 
     public function deleteReport($reportId)
