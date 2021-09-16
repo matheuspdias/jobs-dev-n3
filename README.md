@@ -8,6 +8,9 @@
 #### Execure o seguinte comando na sequencia para instalar de dependencias 
 `docker-compose run composer install`
 
+#### Execute o comando para dar premissão ao storage e logs do laravel:
+`sudo chmod 777 -R storage/`
+
 #### Para gerar uma nova key no seu .env execute o seguinte comando:
 `docker-compose run artisan key:generate`
 
