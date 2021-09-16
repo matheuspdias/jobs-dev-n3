@@ -6,6 +6,8 @@ use App\Http\Resources\ReportResource;
 use App\Report;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Class ReportController
@@ -20,33 +22,42 @@ class ReportController extends Controller
      */
     public function listReports(Request $request)
     {
-        $apiUrl = 'https://spaceflightnewsapi.net/api/v2';
+        $apiUrl = 'https://www.spaceflightnewsapi.net/api/v2/';
 
         $guzzle = new Client([
             'base_uri' => $apiUrl
         ]);
-        $rawResult = $guzzle->get('reports')->getBody();
 
-        $filter = $request->get('filter');
+        try {
+            $rawResult = json_decode($guzzle->get('reports')->getBody(),  true);
 
-        $result = [];
+            $filter = $request->get('filter');
 
-        for ($x = 0; $x <= sizeof($rawResult); $x++) {
-            Report::create([
-                'external_id' => $rawResult[$x]['id'],
-                'title' => $rawResult[$x]['title'],
-                'url' => $rawResult[$x]['url'],
-                'summary' => $rawResult[$x]['summary']
-            ]);
+            $result = [];
 
-            if (strpos($rawResult[$x], $filter) == false) {
-                continue;
+            for ($x = 0; $x < sizeof($rawResult); $x++) {
+                $reportExists = Report::where('external_id', $rawResult[$x]['id'])->count();
+                if(!$reportExists) {
+                    Report::create([
+                        'external_id' => $rawResult[$x]['id'],
+                        'title' => $rawResult[$x]['title'],
+                        'url' => $rawResult[$x]['url'],
+                        'image_url' => $rawResult[$x]['imageUrl'],
+                        'news_site' => $rawResult[$x]['newsSite'],
+                        'summary' => $rawResult[$x]['summary']
+                    ]);
+                }               
+
+                $result[] = $rawResult[$x];
             }
 
-            $result[] = $rawResult[$x];
+            return (new ReportResource($result))
+                ->response()
+                ->setStatusCode(200);
+        } catch (GuzzleException $e) {
+            $response = $e->getResponse();
+            return $responseBodyAsString = $response->getBody();
         }
-
-        return response()->json(['data' => $result]);
     }
 
     /**
@@ -55,25 +66,101 @@ class ReportController extends Controller
      */
     public function createReport(Request $request)
     {
-        $report = Report::create([
-            'external_id' => $request->post('external_id'),
-            'title' => $request->post('title'),
-            'url' => $request->post('url'),
-            'summary' => $request->post('summary')
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'url' => 'required',
+            'summary' => 'required',
         ]);
+
+        if (!$validator->fails()) {
+            $data = $request->only([
+                'external_id',
+                'title',
+                'url',
+                'summary',
+                'image_url',
+                'news_site'
+            ]);
+            
+            $report = Report::create($data);
+            $status = 201;
+        } else {
+            $report['error'] = $validator->errors()->first();
+            $status = 400;
+        }
 
         return (new ReportResource($report))
             ->response()
-            ->setStatusCode(201);
+            ->setStatusCode($status);
     }
 
-    /**
-     * TODO: Implement it
-     *
-     * @param $reportId
-     */
+    public function updateReport($id, Request $request)
+    {
+        $array = [];
+        $report = Report::find($id);
+
+        if ($report) {
+            if ($request->external_id) {
+                $report->external_id = $request->external_id;
+            }
+    
+            if ($request->title) {
+                $report->title = $request->title;
+            }
+    
+            if ($request->url) {
+                $report->url = $request->url;
+            }
+    
+            if ($request->image_url) {
+                $report->image_url = $request->image_url;
+            }
+    
+            if ($request->summary) {
+                $report->summary = $request->summary;
+            }
+    
+            if ($request->news_site) {
+                $report->news_site = $request->news_site;
+            }    
+            $report->save();
+            $array = $report;
+            $status = 200;
+        } else {
+            $array['error'] = 'Este report não existe';
+            $status = 400;
+        }
+
+        return (new ReportResource($array))
+                ->response()
+                ->setStatusCode($status);
+    }
+
+    public function showReport($id, Request $request)
+    {
+        $array = [];
+        $report = Report::find($id);
+
+        if ($report) {
+            $array = $report;
+            $status = 200;
+        } else {
+            $array['error'] = 'Este report não existe';
+            $status = 400;
+        }
+        return (new ReportResource($array))
+                ->response()
+                ->setStatusCode($status);
+    }
+
     public function deleteReport($reportId)
     {
-        // Implementar esse endpoint.
+        $report = Report::find($reportId);
+        if ($report) {
+            Report::destroy($report->id);
+        }
+        return (new ReportResource($report))
+                ->response()
+                ->setStatusCode(200);
     }
 }
