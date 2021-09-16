@@ -14,6 +14,9 @@
 #### Para criar as tabelas no seu banco de dados execute:
 `docker-compose run artisan migrate`
 
+#### Caso peça permissão do container mysql para rodar as migrations execute:
+`sudo chmod 777 -R docker/mysql`
+
 #### Use o SGBD de sua preferencia para acessar o banco de dados:
 
 **HOST:** `0.0.0.0`
